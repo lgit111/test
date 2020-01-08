@@ -36,13 +36,7 @@ def m():
 if (__name__ == "__main__"):
     app.run(host='127.0.0.1', port=5000)
 
-# tf.estimator.Estimator
-#
-# tf.estimator.EstimatorSpec(
-#
-# 将数据转化为tf_record 数据
-#
-# train_spec = tf.estimator.TrainSpec(input_fn=train_input_fn, max_steps=num_train_steps,hooks=[early_stopping_hook])
+
 
 
 
