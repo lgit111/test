@@ -1,0 +1,421 @@
+CentOS查看系统信息
+一：查看CPU
+more /proc/cpuinfo | grep "model name"
+二：查看内存
+grep MemTotal /proc/meminfo
+free -m 
+三：查看cpu是32位还是64位
+查看CPU位数(32 or 64)
+getconf LONG_BIT
+echo $HOSTTYPE
+uname -a
+四：查看当前linux的版本
+cat /etc/redhat-release
+五：查看内核版本
+#uname -r
+#uname -a
+六：语言
+查看：echo $LANG       
+查看系统支持语言：locale -a
+加载中文语言包：yum install kde-l10n-Chinese
+生成字符集：localedef  -f  字符集   -i  地址    名称
+	样 例：localedef  -f  UTF-8   -i  zh_CN    zh_CN.UTF-8
+修改：vim /etc/locale.conf      docker中不可行        
+	  LANG="zh_CN.UTF-8"  
+	     
+	vim .bashrc    docker中可行
+	export LANG="zh_CN.UTF-8"  
+
+
+查看是否包含
+strings 文件 | grep 内容
+
+
+yum查看列表
+yum list rocketmq-client –-showduplicates | sort –r
+
+
+虚拟机138
+ip route show
+sudo route del default gw 192.168.9.99  主机号
+
+
+查看ip地址
+命令：ip a     ens33下面的为ip地址
+若无法显示：
+	修改/etc/sysconfig/network-scripts/ifcfg-ens33
+	ONBOOT 修改为YES
+	执行：service network restart
+
+
+查看cuda版本号
+一、nvcc –V
+二、CUDA  : cat /usr/local/cuda/version.txt 
+    Cudnn  : cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR 
+
+指定GPU
+os.environ['CUDA_ DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
+export CUDA_VISIBLE_DEVICES=1
+
+
+误删libm.so.6
+LD_PRELOAD=/usr/lib64/libc-2.17.so ln -s /usr/lib64/libc-2.17.so /usr/lib64/libc.so.6
+	
+查看程序中断原因
+a)	dmesg | egrep -i -B 100 'killed process'
+b)	cat /var/log/message
+
+
+python包路径
+/usr/local/lib/python3.6/site-packages
+/usr/lib64/python3.6/site-packages
+/usr/lib/python3.6/site-packages
+
+
+数据路径
+/mnt/disk1/data/lyn
+
+
+pypi内网源
+路径:linux  /root/.config/pip/pip.conf      /home/用户名/.pip/pip.conf
+[global]
+index-url = http://192.168.9.124:8081/repository/pypi-group/simple
+trusted-host=192.168.9.124
+
+pip3 config set global.index-url http://192.168.9.124:8081/repository/pypi-group/simple  
+pip3 config set global.trusted-host 192.168.9.124
+
+下载包
+pip download 你的包名 -d "下载的路径(windows下双引号来表示文件夹)"
+
+升级pip
+python3 -m pip install  -U pip
+python3 -m pip install  -U setuptools
+
+
+python虚拟环境
+安装工具:
+	pip3 install virtualenv
+创建虚拟环境:
+	virtualenv 名称
+激活:
+	source 名称/bin/activate
+退出:
+	deactivate
+	
+
+pip问题：
+修改成：
+from pip import __main__
+if __name__ == '__main__':
+    sys.exit(__main__._main())
+
+
+卸载python
+方法1
+	whereis python3
+	rm -rf 路径
+方法2
+	rpm -qa|grep python3|xargs rpm -ev --allmatches --nodeps  卸载
+	whereis python3|xargs rm -frv 删除残余文件
+
+
+问题：_bz2.cpython-36m-x86_64-linux-gnu.so  
+解决：
+	找到lib-dynload/路径
+	直接将文件复制到该路径
+
+
+后台运行
+nohup python3  test.py > savemodel/out.log 2>&1 & 
+在上面的例子中，0 – stdin (standard input)，1 – stdout (standard output)，2 – stderr (standard error) ；
+2>&1是将标准错误（2）重定向到标准输出（&1），标准输出（&1）再被重定向输入到myout.file文件中。
+使用&后台运行程序：
+	结果会输出到终端
+	使用Ctrl + C发送SIGINT信号，程序免疫
+	关闭session发送SIGHUP信号，程序关闭
+使用nohup运行程序：
+	结果默认会输出到nohup.out
+	使用Ctrl + C发送SIGINT信号，程序关闭
+	关闭session发送SIGHUP信号，程序免疫
+	
+
+python程序打包
+安装：pip3 install pyinstaller
+打包：pyinstaller -F -w -pD:\tmp\core-python\libs -i d:\tmp\main.ico main.py
+ 	-F 表示生成单个可执行文件；
+    -D  –onedir 创建一个目录，包含 exe 文件，但会依赖很多文件（默认选项）。
+    -w 表示去掉控制台窗口，这在 GUI 界面时非常有用。不过如果是命令行程序的话那就把这个选项删除吧！；
+    -c  –console, –nowindowed 使用控制台，无界面 (默认)；
+    -p 表示你自己自定义需要加载的类路径，一般情况下用不到；
+    -i 表示可执行文件的图标。
+
+
+cv2 依赖
+libSM.so.6         yum install libSM-1.2.2-2.el7.x86_64 --setopt=protected_multilib=false -y
+libXrender.so.1    yum install libXrender.x86_64 -y
+libXext.so.6       yum install libXext -y
+
+
+查看rocketmq数据   (root权限)
+进入该目录：/home/rocketmq/install/rocketmq-all-4.6.0-bin-release/bin
+./mqadmin clusterList  -n 192.168.9.161:9876
+./mqadmin consumerProgress -n 192.168.9.161:9876 -g 组名
+
+
+xshell链接速度慢
+vim /etc/ssh/sshd_config
+UseDNS  yes修改为no
+systemctl restart sshd
+
+
+创建用户
+useradd 用户名
+passwd  用户名
+
+添加root    
+在 /etc/sudoers 中，添加
+用户名 ALL=(ALL) ALL
+id 用户名   查看
+
+
+docker容器自启动
+创建容器时
+docker run --restart=always 镜像ID
+容器已启动
+docker update --restart=always 容器ID
+
+
+查看docker镜像信息
+docker inspect  镜像ID
+
+
+nvidia/cuda基础镜像，不同tag的区别是：
+base: 基于CUDA，包含最精简的依赖，用于部署预编译的CUDA应用，需要手工安装所需的其他依赖。
+runtime: 基于base，添加了CUDA toolkit共享的库
+devel: 基于runtime，添加了编译工具链，调试工具，头文件，静态库。用于从源码编译CUDA应用。
+
+
+远程调试
+docker run -itd --name text -p 5007:8080 -p 5008:22 --privileged=true cuda-nvidia:latest  /usr/sbin/init
+
+yum install openssh-server -y
+yum install openssh-clients -y
+
+vi /etc/ssh/sshd_config
+
+RSAAuthentication yes #启用 RSA 认证
+PubkeyAuthentication yes #启用公钥私钥配对认证方式
+PermitRootLogin yes #允许root用户使用ssh登录
+
+systemctl restart sshd
+
+
+
+warp-ctc安装    gcc  5
+yum install cmake which -y
+mv warp-ctc-pytorch_bindings/ warp-ctc
+cd warp-ctc
+cd src 
+rm -rf ctc_entrypoint.cu
+ln -s ctc_entrypoint.cpp ctc_entrypoint.cu
+cd ..
+mkdir build
+cd build
+cmake ..       
+make
+cd ../pytorch_bindings
+python3 setup.py install
+
+
+问题：cicc: command not found   缺少cuda/nvvm文件夹
+解决：找到nvvm 复制到cuda中
+
+问题：CUDA_curand_LIBRARY CUDA_curand_LIBRARY   CUDA_curand_LIBRARY  等
+解决：CMAKEFILE.txt文件中添加：
+set(CUDA_CUDART_LIBRARY "/usr/local/cuda-10.2/lib64/libcudart.so.10.2")
+set(CUDA_curand_LIBRARY "/usr/local/cuda-10.2/lib64/libcurand.so.10.0")
+set(CUDA_cusolver_LIBRARY "/usr/local/cuda-10.2/lib64/libcusolver.so.10.3.0.89")
+set(CUDA_cublas_LIBRARY "/usr/local/cuda-10.2/lib64/libcublas.so.10")
+
+问题：CUDA_NVCC_EXECUTABLE 未找到
+解决：将cuda/bin 目录 拷贝到目标cuda/bin
+
+问题：Python.h：No such file or directory      缺少python-devel包
+解决：yum install python3-devel
+
+
+安装dlib
+yum -y install cmake  
+tar -xvf dlib-19.19.tar.gz
+cd dlib-19.19
+python3 setup.py  install
+
+问题：提示BLAS library does not have cblas symbols, so dlib will not use BLAS or LAPACK
+解决：安装openblas 
+		tar -xvf OpenBLAS-0.3.10.tar.gz
+		cd OpenBLAS-0.3.10
+		make
+		make install
+
+问题：gmake: *** No rule to make target `.... `onu07_snmp_cli.o'.  Stop.
+解决：文件依赖关系不正确，（创建软连接）
+
+
+问题：ValueError: Input 0 of layer conv2d is incompatible with the layer: its rank is undefined, but the layer requires a defined rank.
+解决：
+	tensorflow版本不对，下载相应的版本
+
+
+问题：could not dlopen library libcupti.so.10.0
+解决：
+	添加动态库/软连接   位置：cuda/extras/CUPTI/lib64
+	export LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+
+
+问题：ModuleNotFoundError: No module named '_sqlite3'
+解决1：
+	将_sqlite3.cpython-36m-x86_64-linux-gnu.so 复制到 安装目录/lib/python3.6/lib-dynload/
+
+
+问题：ModuleNotFoundError: No module named '_lzma'
+解决1：
+	将_lzma.cpython-36m-x86_64-linux-gnu.so 复制到 安装目录/lib/python3.6/lib-dynload/
+解决2：
+	yum install xz-devel python-backports-lzma  -y
+    pip3 install backports.lzma
+     修改lzma.py文件
+	try:
+	    from _lzma import *
+	    from _lzma import _encode_filter_properties, _decode_filter_properties
+	except:
+	    from backports.lzma import *
+	    from backports.lzma import _encode_filter_properties, _decode_filter_properties
+
+
+安装opencv-windows
+下载：
+	https://github.com/opencv/opencv/releases/download/4.0.1/opencv-4.0.1-vc14_vc15.exe
+安装
+	双击下载的exe文件
+配置系统Path变量
+	D:\opencv-4.0.1\opencv\build\x64\vc15\bin （安装路径）
+相关文件配置
+将vc15/bin文件夹中的opencv_world401.dll和opencv_world401d.dll文件
+复制到C:\Windows\SysWOW64这个文件夹里面即可
+
+将bin目录里面的opencv_ffmpeg401_64.dll文件
+复制到C:\Windows\System32这个文件夹里
+
+
+
+升级gcc
+1、如果直接下载gcc6.3.0进行安装升级的话，会报错
+configure: error: Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
+接下来我们需要以此安装gmp,mpfr,mpc，这三个组件的顺序不能乱，因为后面的依次依赖前面
+
+2、安装相关依赖
+yum install gmp-devel.x86_64 -y
+yum install gcc-c++ -y 
+yum install m4 -y
+
+3、安装gmp
+wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz
+tar -xvf gmp-6.1.2.tar.xz
+cd gmp-6.1.2
+./configure --prefix=/usr/local/gmp
+make && make install
+
+4、安装MPFR
+wget https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.gz
+tar -zxvf mpfr-4.0.2.tar.gz
+cd mpfr-4.0.2
+./configure --prefix=/usr/local/mpfr --with-gmp=/usr/local/gmp
+make && make install
+
+5、安装mpc
+wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
+tar -zxvf mpc-1.0.3.tar.gz
+cd mpc-1.0.3
+./configure --prefix=/usr/local/mpc --with-gmp=/usr/local/gmp --with-mpfr=/usr/local/mpfr
+make && make install
+如果报错：mul.c:175:1: error: conflicting types for ‘mpfr_fmma’
+则将 mpc/src/mul.c中的 mpfr_fmma函数改名为mpfr_fmma_mul，一共三处
+
+7、升级gcc
+wget ftp://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.gz
+tar -zxvf gcc-6.3.0.tar.gz
+cd gcc-6.3.0
+./configure --prefix=/usr/local/gcc --enable-threads=posix --disable-checking --disable-multilib --enable-languages=c,c++ --with-gmp=/usr/local/gmp --with-mpfr=/usr/local/mpfr --with-mpc=/usr/local/mpc
+make && make install
+如果几分钟后出现报错：
+cannot compute suffix of object files: cannot compile
+解决方法如下：
+vi /etc/profile
+添加
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/mpc/lib:/usr/local/gmp/lib:/usr/local/mpfr/lib
+source /etc/profile
+重新编译安装即可
+
+8、创建软链接
+
+ln -sf /usr/local/gcc/bin/gcc /usr/bin/gcc
+ln -sf /usr/local/gcc/bin/c++ /usr/bin/c++
+ln -sf /usr/local/gcc/bin/g++ /usr/bin/g++
+ln -sf /usr/local/gcc/lib64/libstdc++.so.6.0.22 /usr/lib64/libstdc++.so.6
+
+9、验证
+gcc -v
+
+
+hanlp2.0 安装
+	pip3 install hanlp
+
+
+问题：libnvinfer.so.6：No such file or directory 
+解决：
+	解压：
+		tar -xvf tar -xvf TensorRT-6.0.1.8.CentOS-7.6.x86_64-gnu.cuda-10.2.cudnn7.6.tar.gz
+	进入目录：
+		cd TensorRT-6.0.1.8
+	添加环境变量：
+		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:目录/lib
+	安装 TensorRT组件：
+		cd python  
+		pip3 install tensorrt-6.0.1.8-cp36-none-linux_x86_64.whl
+	安装uff组件:
+		cd ../uff/
+		pip3 intstall uff-0.6.5-py2.py3-none-any.whl
+	安装 graphsurgeon 组件:
+		cd ../graphsurgeon
+		pip3 install graphsurgeon-0.4.1-py2.py3-none-any.whl
+	验证
+		import tensorrt
+
+问题：libnvrtc.so.10：No such file or directory 
+解决：
+	复制 libnvrtc.so.10.2.89  至 /usr/local/cuda/lib64
+	添加软连接：
+		ln -s libnvrtc.so.10.2.89 libnvrtc.so.10.2
+		ln -s libnvrtc.so.10.2.89 libnvrtc.so
+
+模型保存路径
+linux:/root/.hanlp/thirdparty/storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip
+windows:C:\Users\dl\AppData\Roaming\hanlp\thirdparty\storage.googleapis.com\bert_models\2018_11_03\chinese_L-12_H-768_A-12.zip
+
+
+文本分类
+https://github.com/kk7nc/Text_Classification
+
+
+
+
+(http://)[0-9a-zA-Z.?=%#-_&]*     微博超链接 
+\\/\\/@[\\u4e00-\\u9fa5\\w\\-]+   微博转发标记 
+@[\\u4e00-\\u9fa5\\w\\-]+         微博@用户名标记 
+\\[[\\u4e00-\\u9fa5\\w\\-]*\\]    表情符号 
+[0-9a-zA-Z]+                      数字和英文字符 
+[\\pP+~$`^=|<>~ `$^+=|<>￥]       标点符号 
+[\\s]                             空白字符 
